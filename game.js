@@ -618,6 +618,30 @@ function setupDomEventListeners() {
     }
   });
 
+  // Touch controls for mobile devices (smooth slide to drag and tap to fire)
+  canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    if (e.touches.length > 0) {
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = CANVAS_WIDTH / rect.width;
+      mouseX = (touch.clientX - rect.left) * scaleX;
+      paddle.targetX = mouseX - paddle.width / 2;
+      triggerLaunchOrFire();
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (e.touches.length > 0) {
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = CANVAS_WIDTH / rect.width;
+      mouseX = (touch.clientX - rect.left) * scaleX;
+      paddle.targetX = mouseX - paddle.width / 2;
+    }
+  }, { passive: false });
+
   // Keyboard controls for keyboard fallbacks and Pause
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' || e.key.toLowerCase() === 'p') {
