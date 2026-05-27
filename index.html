@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEON BREAKOUT - 霓虹打磚塊極限版</title>
+  <!-- Google Fonts for Retro Arcade & Modern UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Animated Background Space Grid -->
+  <div class="stars-bg"></div>
+  <div class="grid-bg"></div>
+
+  <div class="arcade-cabinet">
+    <!-- Header/Title Panel -->
+    <header class="arcade-header">
+      <h1 class="glow-title">NEON <span class="neon-pink">BREAKOUT</span></h1>
+      <div class="header-controls">
+        <button id="mute-btn" class="icon-btn" title="切換音效" aria-label="Mute sound">
+          <svg id="volume-icon" viewBox="0 0 24 24" width="24" height="24">
+            <path fill="currentColor" d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.03,19.86 21,16.28 21,12C21,7.72 18.03,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z" />
+          </svg>
+        </button>
+        <button id="pause-btn" class="icon-btn" title="暫停遊戲" aria-label="Pause game">
+          <svg viewBox="0 0 24 24" width="24" height="24">
+            <path fill="currentColor" d="M14,19H18V5H14M6,19H10V5H6V19Z" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="arcade-body">
+      <!-- Main Game Screen Area -->
+      <div class="screen-wrapper">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <!-- Overlays (Interactive Menus) -->
+        <!-- 1. Start Screen -->
+        <div id="overlay-start" class="overlay active">
+          <div class="overlay-content">
+            <h2 class="arcade-title glow-blue">READY PLAYER ONE</h2>
+            <p class="subtitle">滑鼠控制 ‧ 霓虹光感 ‧ 無限過關挑戰</p>
+            
+            <div class="how-to-play">
+              <h3>如何遊玩</h3>
+              <ul>
+                <li><span class="key">🖱️ 滑鼠左右</span> 移動球拍阻擋能量球</li>
+                <li><span class="key">🖱️ 左鍵點擊</span> 發射能量球 / 發射雷射</li>
+                <li><span class="key">⌨️ ESC / P</span> 暫停 / 繼續遊戲</li>
+              </ul>
+            </div>
+
+            <div class="powerup-legend">
+              <h3>強力道具</h3>
+              <div class="legend-grid">
+                <div class="legend-item"><span class="badge badge-green">3</span> 三倍球</div>
+                <div class="legend-item"><span class="badge badge-red">L</span> 雷射槍</div>
+                <div class="legend-item"><span class="badge badge-blue">W</span> 球拍增寬</div>
+                <div class="legend-item"><span class="badge badge-gold">S</span> 磁性吸附</div>
+                <div class="legend-item"><span class="badge badge-purple">G</span> 底部防護網</div>
+              </div>
+            </div>
+
+            <button id="start-game-btn" class="action-btn glow-pink-btn">開始遊戲</button>
+          </div>
+        </div>
+
+        <!-- 2. Pause Screen -->
+        <div id="overlay-pause" class="overlay">
+          <div class="overlay-content">
+            <h2 class="arcade-title glow-cyan">GAME PAUSED</h2>
+            <p class="subtitle">遊戲已暫停</p>
+            <div class="pause-menu-actions">
+              <button id="resume-btn" class="action-btn glow-blue-btn">繼續遊戲</button>
+              <button id="restart-from-pause-btn" class="action-btn outline-btn">重新開始</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Level Complete Screen -->
+        <div id="overlay-level-clear" class="overlay">
+          <div class="overlay-content">
+            <h2 class="arcade-title glow-green">LEVEL CLEARED!</h2>
+            <p class="subtitle neon-green" id="level-clear-title">關卡已完成！</p>
+            
+            <div class="stats-panel">
+              <div class="stat-row">
+                <span>最高連擊 (Max Combo)</span>
+                <span id="stat-combo" class="stat-val text-cyan">0</span>
+              </div>
+              <div class="stat-row">
+                <span>精準度 (Accuracy)</span>
+                <span id="stat-accuracy" class="stat-val text-yellow">0%</span>
+              </div>
+              <div class="stat-row">
+                <span>獲得積分 (Points)</span>
+                <span id="stat-points" class="stat-val text-pink">0</span>
+              </div>
+            </div>
+
+            <button id="next-level-btn" class="action-btn glow-green-btn">進入下一關</button>
+          </div>
+        </div>
+
+        <!-- 4. Game Over Screen -->
+        <div id="overlay-game-over" class="overlay">
+          <div class="overlay-content">
+            <h2 class="arcade-title glow-red">GAME OVER</h2>
+            <p class="subtitle neon-red">連線中斷 ‧ 挑戰結束</p>
+
+            <div class="gameover-stats">
+              <div class="score-display">
+                <span class="label">最終得分</span>
+                <span id="final-score" class="big-score neon-pink">000000</span>
+              </div>
+              <div class="score-display">
+                <span class="label">最高紀錄</span>
+                <span id="final-highscore" class="big-score neon-cyan">000000</span>
+              </div>
+              <div class="level-reached">
+                <span>完成關卡：<strong id="final-level" class="text-yellow">0</strong></span>
+              </div>
+            </div>
+
+            <button id="restart-game-btn" class="action-btn glow-pink-btn">重新挑戰</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right HUD Panel (Glassmorphic Interface) -->
+      <aside class="hud-panel">
+        <!-- Level & Lives -->
+        <div class="hud-group">
+          <div class="hud-card">
+            <span class="card-label">CURRENT LEVEL</span>
+            <div id="hud-level" class="card-value neon-blue">LV.01</div>
+          </div>
+          <div class="hud-card">
+            <span class="card-label">SHIELD INTEGRITY</span>
+            <div id="hud-lives" class="lives-container">
+              <span class="heart active">♥</span>
+              <span class="heart active">♥</span>
+              <span class="heart active">♥</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scores -->
+        <div class="hud-group">
+          <div class="hud-card">
+            <span class="card-label">SCORE</span>
+            <div id="hud-score" class="card-value neon-pink">000000</div>
+          </div>
+          <div class="hud-card">
+            <span class="card-label">HIGH SCORE</span>
+            <div id="hud-highscore" class="card-value neon-cyan">000000</div>
+          </div>
+        </div>
+
+        <!-- Combo Multiplier -->
+        <div class="hud-card combo-card">
+          <span class="card-label">COMBO MULTIPLIER</span>
+          <div class="combo-wrapper">
+            <div id="hud-combo" class="combo-val">1.0x</div>
+            <div class="combo-progress-bar">
+              <div id="hud-combo-progress" class="combo-progress-fill" style="width: 100%;"></div>
+            </div>
+          </div>
+          <span class="combo-tip">不漏球連續擊碎磚塊增加得分！</span>
+        </div>
+
+        <!-- Active Power-ups -->
+        <div class="hud-card powerups-card">
+          <span class="card-label">ACTIVE POWER-UPS</span>
+          <div id="active-powerups-container" class="active-powerups-list">
+            <!-- Dynamically populated e.g. -->
+            <!-- 
+            <div class="powerup-active-item">
+              <span class="badge badge-red">L</span>
+              <div class="p-bar"><div class="p-fill" style="width: 60%;"></div></div>
+            </div> 
+            -->
+            <div class="no-powerups">目前無啟用道具</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Footer Console Info -->
+    <footer class="arcade-footer">
+      <span>ANTIGRAVITY ARCADE CO. © 2026</span>
+      <span class="status-indicator"><span class="dot-online"></span> SYSTEM ONLINE</span>
+    </footer>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
